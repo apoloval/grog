@@ -31,7 +31,7 @@ set(libgrog_HEADERS
   include/grog/ui/euclidean.h
   include/grog/ui/event.h
   include/grog/ui/widget.h
-  include/grog/util/exception.h
+  include/grog/util/error.h
   include/grog/util/lang.h
 )
 

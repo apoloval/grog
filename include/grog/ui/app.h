@@ -27,7 +27,7 @@
 
 #include "grog/ui/draw.h"
 #include "grog/ui/event.h"
-#include "grog/util/exception.h"
+#include "grog/util/error.h"
 #include "grog/util/lang.h"
 
 namespace grog { namespace ui {
@@ -201,11 +201,31 @@ public:
    */
   static const PropertyValue kPropValueSDLAppEngine;
 
+  DECL_ERROR(InitError, util::InvalidInputError);
+
+  /**
+   * An error while parsing a property, including:
+   *  - ActualPropertyValueInfo, indicating the value of the property
+   *  - ExpectedPropertyTypeInfo, indicating the expected type of the property
+   */
+  DECL_ERROR(PropertyParseError, InitError);
+
+  /**
+   * An error caused by an invalid configuration, including:
+   *  - ActualPropertyValueInfo, indicating the actual value of the property
+   *  - ExpectedPropertyValueInfo, indicating the expected value of the property
+   */
+  DECL_ERROR(InvalidConfigError, InitError);
+
+  DECL_ERROR_INFO(ActualPropertyValueInfo, PropertyValue);
+  DECL_ERROR_INFO(ExpectedPropertyValueInfo, std::string);
+  DECL_ERROR_INFO(ExpectedPropertyTypeInfo, std::string);
+
   /**
    * Parse the given property value according to type T.
    */
   template <typename T>
-  static T ParseProperty(const PropertyValue&);
+  static T ParseProperty(const PropertyValue&) throw (PropertyParseError);
 
   /**
    * Create a new application from given properties. It may throw a
@@ -227,31 +247,32 @@ private:
   Ptr<ApplicationContext> context_;
   Ptr<Window> win_;
 
-  static Ptr<ApplicationContext> InitContext(const Properties& props);
+  static Ptr<ApplicationContext> InitContext(
+      const Properties& props) throw (InitError);
 
   bool DrawFrame();
 };
 
 template <>
 inline bool Application::ParseProperty(
-      const Application::PropertyValue& value) {
+      const Application::PropertyValue& value) throw (PropertyParseError) {
   Application::PropertyValue upper_value = boost::to_upper_copy(value);
   if (upper_value == "YES" || upper_value == "TRUE" || upper_value == "1")
     return true;
   if (upper_value == "NO" || upper_value == "FALSE" || upper_value == "0")
     return false;
-  throw util::InvalidInputException(
-        boost::format("cannot parse %s as boolean value") % value);
+  THROW_ERROR(PropertyParseError() <<
+      ActualPropertyValueInfo(value) << ExpectedPropertyTypeInfo("bool"));
 }
 
 template <>
 inline unsigned Application::ParseProperty(
-      const Application::PropertyValue& value) {
+      const Application::PropertyValue& value) throw (PropertyParseError) {
   try {
     return unsigned(stoi(value));
   } catch (std::exception&) {
-    throw util::InvalidInputException(
-          boost::format("cannot parse %s as a unsigned value") % value);
+    THROW_ERROR(PropertyParseError() <<
+        ActualPropertyValueInfo(value) << ExpectedPropertyTypeInfo("uint"));
   }
 }
 

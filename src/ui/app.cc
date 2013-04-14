@@ -26,7 +26,6 @@
 #include "grog/ui/draw-sdl.h"
 #include "grog/ui/event-sdl.h"
 #include "grog/ui/widget.h"
-#include "grog/util/exception.h"
 
 #ifdef __MACOSX__
 #include "grog/ui/app-cocoa.h"
@@ -67,18 +66,25 @@ void Application::Run() {
   context_->loop().Run();
 }
 
-Ptr<ApplicationContext> Application::InitContext(const Properties& props) {
+Ptr<ApplicationContext> Application::InitContext(
+    const Properties& props) throw (InitError) {
   auto prop_value = props.at(kPropNameAppEngine);
-  if (prop_value == kPropValueSDLAppEngine) {
-#ifdef __MACOSX__
-    return CocoaSDLApplicationContextFactory().CreateContext(props);
-#else
-    return SDLApplicationContextFactory().CreateContext(props);
-#endif
-  } else {
-    throw util::InvalidInputException(
-          boost::format("unknown app engine '%s'") % prop_value);
+  try {
+    if (prop_value == kPropValueSDLAppEngine) {
+  #ifdef __MACOSX__
+      return CocoaSDLApplicationContextFactory().CreateContext(props);
+  #else
+      return SDLApplicationContextFactory().CreateContext(props);
+  #endif
+    }
+  } catch (util::Error& e) {
+    THROW_ERROR(InitError() << util::NestedErrorInfo(e));
   }
+
+  // Unknown app engine
+  THROW_ERROR(InvalidConfigError() <<
+      ActualPropertyValueInfo(prop_value) <<
+      ExpectedPropertyValueInfo("[sdl]"));
 }
 
 bool Application::DrawFrame() {

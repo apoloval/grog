@@ -21,6 +21,7 @@
 
 #include "grog/ui/draw-gl.h"
 #include "grog/ui/euclidean.h"
+#include "grog/util/error.h"
 
 #ifdef __MACOSX__
   #include "grog/ui/cocoa.h"
@@ -31,7 +32,17 @@ namespace grog { namespace ui {
 class SDLOpenGLContext final : public OpenGLContext {
 public:
 
-  SDLOpenGLContext(const OpenGLContextParams& params);
+  /**
+   * A SDL initialization error, including
+   *  - SDLFunctionInfo, indicating the SDL function which invocation failed
+   *  - SDLErrorMessageInfo, indicating the error message provided by SDL
+   */
+  DECL_RUNTIME_ERROR(SDLInitError);
+
+  DECL_ERROR_INFO(SDLFunctionInfo, std::string);
+  DECL_ERROR_INFO(SDLErrorMessageInfo, std::string);
+
+  SDLOpenGLContext(const OpenGLContextParams& params) throw (SDLInitError);
 
   virtual ~SDLOpenGLContext();
 
@@ -41,7 +52,7 @@ private:
 
   SDL_Surface* screen_;
 
-  void InitScreen(const OpenGLContextParams& params);
+  void InitScreen(const OpenGLContextParams& params) throw (SDLInitError);
 };
 
 }} // namespace grog::ui

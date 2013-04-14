@@ -18,11 +18,10 @@
 
 #include <OpenGL/GL.h>
 
-#include "grog/util/exception.h"
-
 namespace grog { namespace ui {
 
-SDLOpenGLContext::SDLOpenGLContext(const OpenGLContextParams& params) {
+SDLOpenGLContext::SDLOpenGLContext(
+    const OpenGLContextParams& params) throw (SDLInitError) {
   InitScreen(params);
 }
 
@@ -34,9 +33,11 @@ void SDLOpenGLContext::SwapBuffers() {
   SDL_GL_SwapBuffers();
 }
 
-void SDLOpenGLContext::InitScreen(const OpenGLContextParams& params) {
+void SDLOpenGLContext::InitScreen(
+    const OpenGLContextParams& params) throw (SDLInitError) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    throw util::InitException("cannot initialize SDL video subsystem");
+    THROW_ERROR(SDLInitError() <<
+        SDLFunctionInfo("SDL_Init") << SDLErrorMessageInfo(SDL_GetError()));
   }
 
   Uint32 flags = SDL_OPENGL;
@@ -48,7 +49,9 @@ void SDLOpenGLContext::InitScreen(const OpenGLContextParams& params) {
         params.screen_depth,
         flags);
   if (!screen_)
-    throw util::InitException("cannot set SDL video mode");
+    THROW_ERROR(SDLInitError() <<
+        SDLFunctionInfo("SDL_SetVideoMode") <<
+        SDLErrorMessageInfo(SDL_GetError()));
 }
 
 }} // namespace grog::ui

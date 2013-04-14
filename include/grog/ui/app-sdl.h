@@ -17,14 +17,20 @@
 #ifndef GROG_UI_APP_SDL_H
 #define GROG_UI_APP_SDL_H
 
+#include <queue>
+
 #include "grog/ui/app.h"
+
+extern "C" { struct SDL_UserEvent; }
 
 namespace grog { namespace ui {
 
 class SDLApplicationLoop : public AbstractApplicationLoop {
 public:
 
-  inline SDLApplicationLoop() : keep_running_(false) {}
+  static Ptr<ApplicationLoop> instance();
+
+  virtual void AddWorkUnit(const WorkUnit& wu);
 
   virtual void Run();
 
@@ -32,7 +38,24 @@ public:
 
 private:
 
-  bool keep_running_;
+  bool running_;
+  std::queue<WorkUnit> work_units_;
+
+  SDLApplicationLoop();
+
+  void OnUserEvent(SDL_UserEvent& ev);
+
+  void ProcessWorkUnit();
+};
+
+class SDLApplicationContextFactory : public ApplicationContextFactory {
+public:
+
+  virtual Ptr<Canvas> CreateCanvas(
+      const Application::Properties& props);
+
+  virtual Ptr<ApplicationLoop> CreateLoop(
+      const Application::Properties& props);
 };
 
 }} // namespace grog::ui

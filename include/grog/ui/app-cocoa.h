@@ -18,6 +18,7 @@
 #define GROG_UI_APP_COCOA_H
 
 #include "grog/ui/app.h"
+#include "grog/ui/app-sdl.h"
 
 #if defined(__cplusplus) && !defined(__OBJC__)
 namespace grog { namespace ui {
@@ -61,6 +62,23 @@ private:
 
   Ptr<ApplicationLoop> delegate_;
   NSAutoreleasePool* pool_;
+};
+
+class CocoaSDLApplicationContextFactory : public ApplicationContextFactory {
+public:
+
+  inline CocoaSDLApplicationContextFactory() :
+      sdl_factory_(new SDLApplicationContextFactory()) {}
+
+  virtual Ptr<Canvas> CreateCanvas(
+      const Application::Properties& props);
+
+  virtual Ptr<ApplicationLoop> CreateLoop(
+      const Application::Properties& props);
+
+private:
+
+  Ptr<SDLApplicationContextFactory> sdl_factory_;
 };
 
 }} // namespace grog::ui

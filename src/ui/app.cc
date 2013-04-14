@@ -39,54 +39,26 @@ namespace {
 typedef Application::PropertyName PropName;
 typedef Application::PropertyName PropValue;
 
-template <typename T>
-T ParseProperty(const PropValue&);
-
-template <>
-bool ParseProperty(const PropValue& value) {
-  PropValue upper_value = boost::to_upper_copy(value);
-  if (upper_value == "YES" || upper_value == "TRUE" || upper_value == "1")
-    return true;
-  if (upper_value == "NO" || upper_value == "FALSE" || upper_value == "0")
-    return false;
-  throw util::InvalidInputException(
-        boost::format("cannot parse %s as boolean value") % value);
-}
-
-template <>
-unsigned ParseProperty(const PropValue& value) {
-  try {
-    return unsigned(stoi(value));
-  } catch (std::exception&) {
-    throw util::InvalidInputException(
-          boost::format("cannot parse %s as a unsigned value") % value);
-  }
-}
-
 } // anonymous namespace
 
 const PropName Application::kPropNameScreenWidth("screen-width");
 const PropName Application::kPropNameScreenHeight("screen-height");
 const PropName Application::kPropNameScreenDepth("screen-depth");
 const PropName Application::kPropNameScreenDoubleBuffer("screen-double-buffer");
-const PropName Application::kPropNameScreenBackend("screen-backend");
+const PropName Application::kPropNameAppEngine("app-engine");
 
-const PropName Application::kPropValueSDLScreenBackend("sdl");
+const PropName Application::kPropValueSDLAppEngine("sdl");
 
 const Application::Properties Application::kDefaultProperties = {
   { "screen-width", "640" },
   { "screen-height", "480" },
   { "screen-depth", "32" },
   { "screen-double-buffer", "yes" },
-  { "screen-backend", "sdl" },
+  { "app-engine", "sdl" },
 };
 
 Application::Application(const Properties& props) :
-    props_(props), context_(new MutableApplicationContext()) {
-  InitAppLoop();
-  InitScreenBackend();
-  InitInternalLoopWorkUnits();
-}
+    props_(props), context_(InitContext(props)) {}
 
 Application::~Application() {
 }
@@ -95,33 +67,18 @@ void Application::Run() {
   context_->loop().Run();
 }
 
-void Application::InitScreenBackend() {
-  auto prop_value = props_.at(kPropNameScreenBackend);
-  if (prop_value == kPropValueSDLScreenBackend) {
-    InitSDLCanvas();
-  }
-}
-
-void Application::InitSDLCanvas() {
-  OpenGLContextParams params = {
-    {
-      ParseProperty<unsigned>(props_.at(kPropNameScreenWidth)),
-      ParseProperty<unsigned>(props_.at(kPropNameScreenHeight)),
-    },
-    ParseProperty<unsigned>(props_.at(kPropNameScreenDepth)),
-    ParseProperty<bool>(props_.at(kPropNameScreenDoubleBuffer)),
-  };
-  auto gl_ctx = new SDLOpenGLContext(params);
-  context_->set_canvas(new OpenGLCanvas(gl_ctx));
-}
-
-void Application::InitAppLoop() {
+Ptr<ApplicationContext> Application::InitContext(const Properties& props) {
+  auto prop_value = props.at(kPropNameAppEngine);
+  if (prop_value == kPropValueSDLAppEngine) {
 #ifdef __MACOSX__
-  context_->set_loop(new CocoaApplicationLoop(new SDLApplicationLoop()));
+    return CocoaSDLApplicationContextFactory().CreateContext(props);
+#else
+    return SDLApplicationContextFactory().CreateContext(props);
 #endif
-}
-
-void Application::InitInternalLoopWorkUnits() {
+  } else {
+    throw util::InvalidInputException(
+          boost::format("unknown app engine '%s'") % prop_value);
+  }
 }
 
 bool Application::DrawFrame() {
@@ -129,6 +86,14 @@ bool Application::DrawFrame() {
   if (win_)
     win_->draw();
   return true;
+}
+
+Ptr<ApplicationContext> ApplicationContextFactory::CreateContext(
+    const Application::Properties &props) {
+  MutableApplicationContext* ctx = new MutableApplicationContext();
+  ctx->set_loop(CreateLoop(props));
+  ctx->set_canvas(CreateCanvas(props));
+  return ctx;
 }
 
 }} // namespace grog::ui

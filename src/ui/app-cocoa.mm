@@ -23,25 +23,24 @@
 #undef Ptr
 
 @interface CocoaAppDelegate : NSObject {
-  grog::ui::ApplicationLoop* loop_;
 }
 @end
 
 @implementation CocoaAppDelegate
 
-- (id) initWithDelegateLoop: (grog::ui::ApplicationLoop*) loop {
-  if (self = [super init])
-    loop_ = loop;
+- (id) init {
+  self = [super init];
   return self;
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification*) note {
-  loop_->Run();
-  [[NSApplication sharedApplication] stop: self];
-}
-
-- (void) terminate {
-  loop_->Stop();
+  /*
+   * When Cocoa app finishes launching, we just stop its main loop. That
+   * returns the control to the caller (CocoaApplicationLoop constructor)
+   * with the Cocoa App initialized, so a custom event loop (e.g., SDL-based)
+   * is fully ready to work.
+   */
+  [NSApp stop: self];
 }
 
 @end
@@ -54,9 +53,9 @@ CocoaApplicationLoop::CocoaApplicationLoop(const Ptr<ApplicationLoop>& delegate)
 
   [NSApplication sharedApplication];
 
-  CocoaAppDelegate *cocoa_delegate=
-      [[CocoaAppDelegate alloc] initWithDelegateLoop: delegate_.get()];
+  CocoaAppDelegate *cocoa_delegate= [[CocoaAppDelegate alloc] init];
   [NSApp setDelegate:cocoa_delegate];
+  [NSApp run];
 }
 
 CocoaApplicationLoop::~CocoaApplicationLoop()
@@ -65,11 +64,21 @@ CocoaApplicationLoop::~CocoaApplicationLoop()
 }
 
 void CocoaApplicationLoop::Run() {
-  [NSApp run];
+  delegate_->Run();
 }
 
 void CocoaApplicationLoop::Stop() {
   delegate_->Stop();
+}
+
+Ptr<Canvas> CocoaSDLApplicationContextFactory::CreateCanvas(
+    const Application::Properties &props) {
+  return sdl_factory_->CreateCanvas(props);
+}
+
+Ptr<ApplicationLoop> CocoaSDLApplicationContextFactory::CreateLoop(
+    const Application::Properties &props) {
+  return new CocoaApplicationLoop(sdl_factory_->CreateLoop(props));
 }
 
 }} // namespace grog::ui

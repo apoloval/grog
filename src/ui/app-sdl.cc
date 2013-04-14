@@ -14,9 +14,13 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "grog/ui/app-sdl.h"
+#include <iostream>
 
 #include <SDL/SDL.h>
+
+#include "grog/ui/app-sdl.h"
+#include "grog/ui/draw-gl.h"
+#include "grog/ui/draw-sdl.h"
 
 namespace grog { namespace ui {
 
@@ -24,6 +28,7 @@ namespace {
 
 enum SDLCustomEvent {
   kRequestRedisplayEvent,
+  kWorkUnitPending,
 };
 
 MouseMotionEvent ToEvent(const SDL_MouseMotionEvent& ev) {
@@ -64,9 +69,22 @@ MouseButtonEvent ToEvent(const SDL_MouseButtonEvent& ev) {
 
 } // anonymous namespace
 
+Ptr<ApplicationLoop> SDLApplicationLoop::instance() {
+  static Ptr<ApplicationLoop> instance(new SDLApplicationLoop());
+  return instance;
+}
+
+void SDLApplicationLoop::AddWorkUnit(const WorkUnit& wu) {
+  work_units_.push(wu);
+  SDL_Event event;
+  event.type = SDL_USEREVENT;
+  event.user.code = kWorkUnitPending;
+  SDL_PushEvent(&event);
+}
+
 void SDLApplicationLoop::Run() {
-  keep_running_ = true;
-  while (keep_running_) {
+  running_ = true;
+  while (running_) {
     SDL_Event event;
     if (SDL_WaitEvent(&event)) {
       switch (event.type) {
@@ -78,7 +96,10 @@ void SDLApplicationLoop::Run() {
           HandleMouseButtonEvent(ToEvent(event.button));
           break;
         case SDL_QUIT:
-          keep_running_ = false;
+          Stop();
+          break;
+        case SDL_USEREVENT:
+          OnUserEvent(event.user);
           break;
       }
     }
@@ -86,7 +107,50 @@ void SDLApplicationLoop::Run() {
 }
 
 void SDLApplicationLoop::Stop() {
-  keep_running_ = false;
+  running_ = false;
+}
+
+SDLApplicationLoop::SDLApplicationLoop() : running_(false) {
+  if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+    SDL_Init(SDL_INIT_VIDEO);
+  }
+}
+
+void SDLApplicationLoop::OnUserEvent(SDL_UserEvent &ev) {
+  switch (ev.code) {
+    case kWorkUnitPending:
+      ProcessWorkUnit();
+  }
+}
+
+void SDLApplicationLoop::ProcessWorkUnit() {
+  auto wu = work_units_.front();
+  if (wu())
+    AddWorkUnit(wu);
+  work_units_.pop();
+}
+
+Ptr<Canvas> SDLApplicationContextFactory::CreateCanvas(
+    const Application::Properties& props) {
+  OpenGLContextParams params = {
+    {
+      Application::ParseProperty<unsigned>(
+          props.at(Application::kPropNameScreenWidth)),
+      Application::ParseProperty<unsigned>(
+          props.at(Application::kPropNameScreenHeight)),
+    },
+    Application::ParseProperty<unsigned>(
+        props.at(Application::kPropNameScreenDepth)),
+    Application::ParseProperty<bool>(
+        props.at(Application::kPropNameScreenDoubleBuffer)),
+  };
+  auto gl_ctx = new SDLOpenGLContext(params);
+  return new OpenGLCanvas(gl_ctx);
+}
+
+Ptr<ApplicationLoop> SDLApplicationContextFactory::CreateLoop(
+    const Application::Properties &props) {
+  return SDLApplicationLoop::instance();
 }
 
 }} // namespace grog::ui

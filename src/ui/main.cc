@@ -24,11 +24,7 @@
 
 namespace {
 
-int RunMain(int argc, wchar_t* argv[]) {
-  GrogMainArgs args;
-  for (int i = 0; i < argc; i++) {
-    args.push_back(argv[i]);
-  }
+int RunMain(const GrogMainArgs& args) {
   try {
     GrogMain(args);
     return 0;
@@ -45,10 +41,22 @@ int RunMain(int argc, wchar_t* argv[]) {
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
   int argc;
   LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-  return RunMain(argc, argv);
+
+  GrogMainArgs args;
+  for (int i = 0; i < argc; i++) {
+    args.push_back(argv[i]);
+  }
+
+  return RunMain(args);
 }
 #else
 int main(int argc, char* argv[]) {
-  return RunMain(argc, argv);
+  GrogMainArgs args;
+  for (int i = 0; i < argc; i++) {
+    std::string arg(argv[i]);
+    std::wstring warg(arg.begin(), arg.end());
+    args.push_back(warg);
+  }
+  return RunMain(args);
 }
 #endif

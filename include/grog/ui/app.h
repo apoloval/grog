@@ -30,6 +30,17 @@
 #include "grog/util/error.h"
 #include "grog/util/lang.h"
 
+/**
+ * The type of command line arguments for a Grog application.
+ */
+typedef std::vector<std::wstring> GrogMainArgs;
+
+/**
+ * The entry point for a Grog application. This must be implemented by
+ * client code, and will be invoked by Grog to initialize the app.
+ */
+void GrogMain(const GrogMainArgs& args) throw (::grog::util::Error);
+
 namespace grog { namespace ui {
 
 /**
@@ -118,8 +129,6 @@ public:
 
   inline MutableApplicationContext() {}
 
-  MutableApplicationContext(const MutableApplicationContext&) = delete;
-
   inline ApplicationLoop& loop() { return *loop_; }
 
   inline bool has_loop() const { return bool(loop_); }
@@ -136,6 +145,8 @@ private:
 
   Ptr<ApplicationLoop> loop_;
   Ptr<Canvas> canvas_;
+
+  inline MutableApplicationContext(const MutableApplicationContext&) {}
 };
 
 class ApplicationContextProvider {

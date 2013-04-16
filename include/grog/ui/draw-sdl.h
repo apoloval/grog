@@ -17,7 +17,13 @@
 #ifndef GROG_UI_DRAW_SDL_H
 #define GROG_UI_DRAW_SDL_H
 
-#include <SDL/SDL.h>
+#include "grog/util/platform.h" // required for platform-dependent includes
+
+#ifdef GROG_PLATFORM_IS_POSIX
+  #include <SDL/SDL.h>
+#else // Windows
+  #include <SDL.h>
+#endif
 
 #include "grog/ui/draw-gl.h"
 #include "grog/ui/euclidean.h"

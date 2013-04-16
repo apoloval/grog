@@ -38,6 +38,16 @@ namespace {
 typedef Application::PropertyName PropName;
 typedef Application::PropertyName PropValue;
 
+Application::Properties InitDefaultProperties() {
+  Application::Properties props;
+  props["screen-width"] = "640";
+  props["screen-height"] = "480";
+  props["screen-depth"] = "32";
+  props["screen-double-buffer"] = "yes";
+  props["app-engine"] = "sdl";
+  return props;
+}
+
 } // anonymous namespace
 
 const PropName Application::kPropNameScreenWidth("screen-width");
@@ -48,13 +58,8 @@ const PropName Application::kPropNameAppEngine("app-engine");
 
 const PropName Application::kPropValueSDLAppEngine("sdl");
 
-const Application::Properties Application::kDefaultProperties = {
-  { "screen-width", "640" },
-  { "screen-height", "480" },
-  { "screen-depth", "32" },
-  { "screen-double-buffer", "yes" },
-  { "app-engine", "sdl" },
-};
+const Application::Properties Application::kDefaultProperties =
+    InitDefaultProperties();
 
 Application::Application(const Properties& props) :
     props_(props), context_(InitContext(props)) {}

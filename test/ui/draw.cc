@@ -36,10 +36,9 @@ void OnMouseButton(const MouseButtonEvent& ev) {
           ev.pos.x % ev.pos.y << std::endl;
 }
 
-int main(int argc, char* argv[]) {
+void GrogMain(const GrogMainArgs& args) throw (grog::util::Error) {
   Application app;
   app.context()->loop().RegisterMouseButtonEventHandler(
         &OnMouseButton);
   app.Run();
-  return 0;
 }

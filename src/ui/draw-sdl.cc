@@ -16,8 +16,6 @@
 
 #include "grog/ui/draw-sdl.h"
 
-#include <OpenGL/GL.h>
-
 namespace grog { namespace ui {
 
 SDLOpenGLContext::SDLOpenGLContext(

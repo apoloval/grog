@@ -16,8 +16,16 @@
 
 #include "grog/ui/draw-gl.h"
 
-#include <OpenGL/gl.h>
-#include <SDL/SDL.h>
+#include "grog/util/platform.h" // required for platform-dependent includes
+
+#if GROG_PLATFORM == GROG_PLATFORM_OSX
+  #include <OpenGL/gl.h>
+#elif GROG_PLATFORM == GROG_PLATFORM_WINDOWS
+  #include <Windows.h>
+  #include <gl/GL.h>
+#else
+  #include <gl/GL.h>
+#endif
 
 namespace grog { namespace ui {
 

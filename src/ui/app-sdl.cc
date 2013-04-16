@@ -16,7 +16,13 @@
 
 #include <iostream>
 
-#include <SDL/SDL.h>
+#include "grog/util/platform.h" // required for platform-dependent includes
+
+#ifdef GROG_PLATFORM_IS_POSIX
+  #include <SDL/SDL.h>
+#else
+  #include <SDL.h>
+#endif
 
 #include "grog/ui/app-sdl.h"
 #include "grog/ui/draw-gl.h"

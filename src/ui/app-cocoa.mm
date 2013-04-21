@@ -71,9 +71,9 @@ void CocoaApplicationLoop::Stop() {
   delegate_->Stop();
 }
 
-Ptr<Canvas> CocoaSDLApplicationContextFactory::CreateCanvas(
+Ptr<Screen> CocoaSDLApplicationContextFactory::CreateScreen(
     const Application::Properties &props) {
-  return sdl_factory_->CreateCanvas(props);
+  return sdl_factory_->CreateScreen(props);
 }
 
 Ptr<ApplicationLoop> CocoaSDLApplicationContextFactory::CreateLoop(

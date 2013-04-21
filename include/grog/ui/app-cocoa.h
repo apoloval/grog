@@ -70,7 +70,7 @@ public:
   inline CocoaSDLApplicationContextFactory() :
       sdl_factory_(new SDLApplicationContextFactory()) {}
 
-  virtual Ptr<Canvas> CreateCanvas(
+  virtual Ptr<Screen> CreateScreen(
       const Application::Properties& props);
 
   virtual Ptr<ApplicationLoop> CreateLoop(

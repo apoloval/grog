@@ -53,7 +53,7 @@ private:
 class SDLApplicationContextFactory : public ApplicationContextFactory {
 public:
 
-  virtual Ptr<Canvas> CreateCanvas(
+  virtual Ptr<Screen> CreateScreen(
       const Application::Properties& props);
 
   virtual Ptr<ApplicationLoop> CreateLoop(

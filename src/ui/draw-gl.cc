@@ -31,15 +31,15 @@
 
 namespace grog { namespace ui {
 
-void OpenGLRectangle::draw() const {
-  // TODO: implement this
-}
-
-OpenGLCanvas::OpenGLCanvas(const Ptr<OpenGLContext>& ctx)
+OpenGLScreen::OpenGLScreen(const Ptr<OpenGLContext>& ctx)
   : ctx_(ctx), shape_factory_(new OpenGLShapeFactory()) {
 }
 
-void OpenGLCanvas::clear() {
+Vector2<unsigned> OpenGLScreen::size() const {
+  return ctx_->size();
+}
+
+void OpenGLScreen::clear() {
   glClearColor(0.0f, 0.0f, 0.0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   ctx_->SwapBuffers();

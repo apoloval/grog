@@ -21,8 +21,13 @@
 namespace grog { namespace ui {
 
 SDLOpenGLContext::SDLOpenGLContext(
-    const OpenGLContextParams& params) throw (SDLInitError) {
+    const OpenGLContextParams& params) throw (SDLInitError)
+  : size_(params.screen_size) {
   InitScreen(params);
+}
+
+Vector2<unsigned> SDLOpenGLContext::size() const {
+  return size_;
 }
 
 SDLOpenGLContext::~SDLOpenGLContext() {

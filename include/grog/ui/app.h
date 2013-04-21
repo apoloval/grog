@@ -116,6 +116,8 @@ private:
   std::list<MouseButtonEventHandler> mouse_button_handlers_;
 };
 
+class Window;
+
 class ApplicationContext {
 public:
 
@@ -123,32 +125,44 @@ public:
 
   virtual ApplicationLoop& loop() = 0;
 
-  virtual Canvas& canvas() = 0;
+  virtual Screen& screen() = 0;
+
+  virtual const Ptr<Window>& window() = 0;
+
+  virtual void set_window(const Ptr<Window>& window) = 0;
+
+  virtual void PostRedisplay() = 0;
 };
 
-class MutableApplicationContext : public ApplicationContext {
+class DefaultApplicationContext : public ApplicationContext {
 public:
 
-  inline MutableApplicationContext() {}
+  inline DefaultApplicationContext(const Ptr<ApplicationLoop>& loop,
+                                   const Ptr<Screen>& screen)
+    : loop_(loop), screen_(screen) {
+  }
 
   inline ApplicationLoop& loop() { return *loop_; }
 
-  inline bool has_loop() const { return bool(loop_); }
+  inline Screen& screen() { return *screen_; }
 
-  inline void set_loop(const Ptr<ApplicationLoop>& loop) { loop_ = loop; }
+  inline virtual const Ptr<Window>& window() { return window_; }
 
-  inline Canvas& canvas() { return *canvas_; }
+  inline virtual void set_window(const Ptr<Window>& window) {
+    window_ = window;
+    PostRedisplay();
+  }
 
-  inline bool has_canvas() const { return bool(canvas_); }
-
-  inline void set_canvas(const Ptr<Canvas>& canvas) { canvas_ = canvas; }
+  virtual void PostRedisplay();
 
 private:
 
   Ptr<ApplicationLoop> loop_;
-  Ptr<Canvas> canvas_;
+  Ptr<Screen> screen_;
+  Ptr<Window> window_;
 
-  inline MutableApplicationContext(const MutableApplicationContext&) {}
+  inline DefaultApplicationContext(const DefaultApplicationContext&) {}
+
 };
 
 class ApplicationContextProvider {
@@ -158,8 +172,6 @@ public:
 
   virtual Ptr<ApplicationContext> context() = 0;
 };
-
-class Window;
 
 class Application : public ApplicationContextProvider {
 public:
@@ -254,16 +266,15 @@ public:
 
   void Run();
 
+  Ptr<Window> NewWindow();
+
 private:
 
   Properties props_;
   Ptr<ApplicationContext> context_;
-  Ptr<Window> win_;
 
   static Ptr<ApplicationContext> InitContext(
       const Properties& props) throw (InitError);
-
-  bool DrawFrame();
 };
 
 template <>
@@ -297,14 +308,12 @@ public:
   virtual Ptr<ApplicationContext> CreateContext(
       const Application::Properties& props);
 
-  virtual Ptr<Canvas> CreateCanvas(
+  virtual Ptr<Screen> CreateScreen(
       const Application::Properties& props) = 0;
 
   virtual Ptr<ApplicationLoop> CreateLoop(
       const Application::Properties& props) = 0;
 };
-
-
 
 }} // namespace grog::ui
 

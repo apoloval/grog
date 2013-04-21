@@ -52,6 +52,8 @@ public:
 
   SDLOpenGLContext(const OpenGLContextParams& params) throw (SDLInitError);
 
+  virtual Vector2<unsigned> size() const;
+
   virtual ~SDLOpenGLContext();
 
   virtual void SwapBuffers();
@@ -59,6 +61,7 @@ public:
 private:
 
   SDL_Surface* screen_;
+  Vector2<unsigned> size_;
 
   void InitScreen(const OpenGLContextParams& params) throw (SDLInitError);
 };

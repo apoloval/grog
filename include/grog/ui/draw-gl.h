@@ -26,17 +26,8 @@
 
 namespace grog { namespace ui {
 
-class OpenGLRectangle : public Rectangle {
-public:
-
-  inline OpenGLRectangle(const Vector2UInt& pos, const Vector2UInt& size) :
-    Rectangle(pos, size) {}
-
-  virtual void draw() const;
-};
-
 struct OpenGLContextParams {
-  Vector2UInt screen_size;
+  Vector2<unsigned> screen_size;
   unsigned int screen_depth;
   bool double_buffer;
 };
@@ -46,22 +37,21 @@ public:
 
   inline virtual ~OpenGLContext() {}
 
+  virtual Vector2<unsigned> size() const = 0;
+
   virtual void SwapBuffers() = 0;
 };
 
 class OpenGLShapeFactory : public ShapeFactory {
 public:
-
-  inline virtual OpenGLRectangle* createRectangle(
-      const Vector2UInt& pos, const Vector2UInt& size) {
-    return new OpenGLRectangle(pos, size);
-  }
 };
 
-class OpenGLCanvas : public Canvas {
+class OpenGLScreen : public Screen {
 public:
 
-  OpenGLCanvas(const Ptr<OpenGLContext>& ctx);
+  OpenGLScreen(const Ptr<OpenGLContext>& ctx);
+
+  virtual Vector2<unsigned> size() const;
 
   virtual void clear();
 

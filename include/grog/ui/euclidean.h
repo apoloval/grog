@@ -19,19 +19,44 @@
 #ifndef GROG_UI_EUCLIDEAN_H
 #define GROG_UI_EUCLIDEAN_H
 
+#define MAX(a, b) (a < b ? b : a)
+#define MIN(a, b) (a < b ? a : b)
+
 namespace grog { namespace ui {
 
-template<typename T>
+template <typename T>
 struct Vector2 {
   T x;
   T y;
+
+  inline Vector2(const T& x, const T& y) : x(x), y(y) {}
 };
 
-typedef Vector2<int> Vector2Int;
-typedef Vector2<unsigned int> Vector2UInt;
-typedef Vector2<float> Vector2Float;
-typedef Vector2<double> Vector2Double;
+typedef Vector2<signed> ScreenCoords;
+
+template <typename PT, typename ST = PT>
+struct Rect2 {
+  PT x;
+  PT y;
+  ST w;
+  ST h;
+
+  inline Rect2(const PT& x, const PT& y, const ST& w, const ST& h)
+    : x(x), y(y), w(w), h(h) {}
+
+  inline Rect2(const Vector2<PT>& pos, const Vector2<ST>& size)
+    : x(pos.x), y(pos.y), w(size.x), h(size.y) {}
+
+  inline Rect2 Subrectangle(const Rect2& rect) const {
+    return Rect2(x + rect.x, y + rect.y, rect.w, rect.h);
+  }
+};
+
+typedef Rect2<signed, unsigned> ScreenRegion;
 
 }} // namespace grog::ui
+
+#undef MAX
+#undef MIN
 
 #endif // GROG_EUCLIDEAN_H

@@ -22,6 +22,7 @@
 #include <boost/format.hpp>
 
 using namespace grog::ui;
+using namespace std::placeholders;
 
 const char* mouse_button_name[] = {
   "left", "right", "middle", "wheel up", "wheel down", "unknown"
@@ -31,7 +32,8 @@ const char* mouse_button_state_name[] = {
   "pressed", "released", "unknown"
 };
 
-void OnMouseButton(const MouseButtonEvent& ev) {
+void OnMouseButton(Application& app, const MouseButtonEvent& ev) {
+  app.context()->PostRedisplay();
   std::cout << boost::format("Mouse button %s was %s on (%d, %d)") %
           mouse_button_name[ev.button] %
           mouse_button_state_name[ev.state] %
@@ -41,6 +43,7 @@ void OnMouseButton(const MouseButtonEvent& ev) {
 void GrogMain(const GrogMainArgs& args) throw (grog::util::Error) {
   Application app;
   app.context()->loop().RegisterMouseButtonEventHandler(
-        &OnMouseButton);
+        std::bind(OnMouseButton, app, _1));
+  auto win = app.NewWindow();
   app.Run();
 }

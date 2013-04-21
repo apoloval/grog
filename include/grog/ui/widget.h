@@ -29,7 +29,7 @@ public:
 
   inline Widget(const Ptr<ApplicationContext>& app_ctx) : app_ctx_(app_ctx) {}
 
-  virtual Ptr<ApplicationContext> app_ctx() { return app_ctx_; }
+  virtual Ptr<ApplicationContext> context() { return app_ctx_; }
 
 private:
 
@@ -42,7 +42,7 @@ public:
   inline Window(ApplicationContextProvider& app_ctx_prov) :
     Widget(app_ctx_prov.context()) {}
 
-  virtual void draw();
+  virtual void draw(const ScreenRegion& screen_region) const;
 };
 
 }} // namespace grog::ui

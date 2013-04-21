@@ -52,6 +52,19 @@ Application::Properties InitDefaultProperties() {
 
 } // anonymous namespace
 
+void DefaultApplicationContext::PostRedisplay()
+{
+  loop().AddWorkUnit([this]() {
+    auto& scr = screen();
+    scr.clear();
+    auto win = window();
+    if (win)
+     win->draw(ScreenRegion(Vector2<signed>(0, 0), scr.size()));
+    // Remove work unit, will be inserted when post redisplay is requested
+    return false;
+  });
+}
+
 const PropName Application::kPropNameScreenWidth("screen-width");
 const PropName Application::kPropNameScreenHeight("screen-height");
 const PropName Application::kPropNameScreenDepth("screen-depth");
@@ -63,14 +76,21 @@ const PropName Application::kPropValueSDLAppEngine("sdl");
 const Application::Properties Application::kDefaultProperties =
     InitDefaultProperties();
 
-Application::Application(const Properties& props) :
-    props_(props), context_(InitContext(props)) {}
+Application::Application(const Properties& props)
+  : props_(props), context_(InitContext(props)) {
+}
 
 Application::~Application() {
 }
 
 void Application::Run() {
   context_->loop().Run();
+}
+
+Ptr<Window> Application::NewWindow() {
+  Ptr<Window> win = new Window(*this);
+  context_->set_window(win);
+  return win;
 }
 
 Ptr<ApplicationContext> Application::InitContext(
@@ -94,19 +114,11 @@ Ptr<ApplicationContext> Application::InitContext(
       ExpectedPropertyValueInfo("[sdl]"));
 }
 
-bool Application::DrawFrame() {
-  context_->canvas().clear();
-  if (win_)
-    win_->draw();
-  return true;
-}
-
 Ptr<ApplicationContext> ApplicationContextFactory::CreateContext(
     const Application::Properties &props) {
-  MutableApplicationContext* ctx = new MutableApplicationContext();
-  ctx->set_loop(CreateLoop(props));
-  ctx->set_canvas(CreateCanvas(props));
-  return ctx;
+  auto loop = CreateLoop(props);
+  auto screen = CreateScreen(props);
+  return new DefaultApplicationContext(loop, screen);
 }
 
 }} // namespace grog::ui

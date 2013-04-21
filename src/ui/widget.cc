@@ -16,12 +16,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+
 #include "grog/ui/widget.h"
 
 namespace grog { namespace ui {
 
-void Window::draw() {
-  // TODO: implement this with a proof-of-concept based on rectangles
+void Window::draw(const ScreenRegion& screen_region) const {
+  std::cerr << "Main window requested to draw" << std::endl;
 }
 
 }} // namespace grog::ui

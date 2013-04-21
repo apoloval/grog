@@ -40,11 +40,9 @@ enum SDLCustomEvent {
 };
 
 MouseMotionEvent ToEvent(const SDL_MouseMotionEvent& ev) {
-  MouseMotionEvent result = {
-    { ev.x, ev.y },
-    { ev.xrel, ev.yrel }
-  };
-  return result;
+  return MouseMotionEvent(
+        ScreenCoords( ev.x, ev.y),
+        ScreenCoords( ev.xrel, ev.yrel));
 }
 
 MouseButton ToMouseButton(Uint8 btn) {
@@ -67,12 +65,10 @@ MouseButtonState ToMouseButtonState(Uint8 state) {
 }
 
 MouseButtonEvent ToEvent(const SDL_MouseButtonEvent& ev) {
-  MouseButtonEvent result = {
-    ToMouseButton(ev.button),
-    ToMouseButtonState(ev.state),
-    { ev.x, ev.y }
-  };
-  return result;
+  return MouseButtonEvent(
+        ToMouseButton(ev.button),
+        ToMouseButtonState(ev.state),
+        ScreenCoords(ev.x, ev.y));
 }
 
 } // anonymous namespace
@@ -138,22 +134,21 @@ void SDLApplicationLoop::ProcessWorkUnit() {
   work_units_.pop();
 }
 
-Ptr<Canvas> SDLApplicationContextFactory::CreateCanvas(
+Ptr<Screen> SDLApplicationContextFactory::CreateScreen(
     const Application::Properties& props) {
   OpenGLContextParams params = {
-    {
+    Vector2<unsigned>(
       Application::ParseProperty<unsigned>(
           props.at(Application::kPropNameScreenWidth)),
       Application::ParseProperty<unsigned>(
-          props.at(Application::kPropNameScreenHeight)),
-    },
+          props.at(Application::kPropNameScreenHeight))),
     Application::ParseProperty<unsigned>(
         props.at(Application::kPropNameScreenDepth)),
     Application::ParseProperty<bool>(
         props.at(Application::kPropNameScreenDoubleBuffer)),
   };
   auto gl_ctx = new SDLOpenGLContext(params);
-  return new OpenGLCanvas(gl_ctx);
+  return new OpenGLScreen(gl_ctx);
 }
 
 Ptr<ApplicationLoop> SDLApplicationContextFactory::CreateLoop(

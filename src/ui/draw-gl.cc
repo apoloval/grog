@@ -24,9 +24,9 @@
   #include <OpenGL/gl.h>
 #elif GROG_PLATFORM == GROG_PLATFORM_WINDOWS
   #include <Windows.h>
-  #include <gl/GL.h>
+  #include <GL/gl.h>
 #else
-  #include <gl/GL.h>
+  #include <GL/gl.h>
 #endif
 
 namespace grog { namespace ui {

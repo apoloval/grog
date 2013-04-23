@@ -45,10 +45,10 @@ public:
    *  - SDLFunctionInfo, indicating the SDL function which invocation failed
    *  - SDLErrorMessageInfo, indicating the error message provided by SDL
    */
-  DECL_RUNTIME_ERROR(SDLInitError);
+  GROG_DECL_RUNTIME_ERROR(SDLInitError);
 
-  DECL_ERROR_INFO(SDLFunctionInfo, std::string);
-  DECL_ERROR_INFO(SDLErrorMessageInfo, std::string);
+  GROG_DECL_ERROR_INFO(SDLFunctionInfo, std::string);
+  GROG_DECL_ERROR_INFO(SDLErrorMessageInfo, std::string);
 
   SDLOpenGLContext(const OpenGLContextParams& params) throw (SDLInitError);
 

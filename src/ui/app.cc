@@ -78,14 +78,14 @@ const Application::Properties Application::kDefaultProperties =
 
 Application& Application::init(const Properties& props) throw (InitError) {
   if (singleton_)
-    THROW_ERROR(AlreadyInitializedError());
+    GROG_THROW_ERROR(AlreadyInitializedError());
   singleton_ = new Application(props);
   return *singleton_;
 }
 
 Application& Application::instance() throw (UninitializedError) {
   if (!singleton_)
-    THROW_ERROR(UninitializedError());
+    GROG_THROW_ERROR(UninitializedError());
   return *singleton_;
 }
 
@@ -120,11 +120,11 @@ Ptr<ApplicationContext> Application::InitContext(
   #endif
     }
   } catch (util::Error& e) {
-    THROW_ERROR(InitError() << util::NestedErrorInfo(e));
+    GROG_THROW_ERROR(InitError() << util::NestedErrorInfo(e));
   }
 
   // Unknown app engine
-  THROW_ERROR(InvalidConfigError() <<
+  GROG_THROW_ERROR(InvalidConfigError() <<
       ActualPropertyValueInfo(prop_value) <<
       ExpectedPropertyValueInfo("[sdl]"));
 }

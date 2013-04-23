@@ -41,7 +41,7 @@ void SDLOpenGLContext::SwapBuffers() {
 void SDLOpenGLContext::InitScreen(
     const OpenGLContextParams& params) throw (SDLInitError) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    THROW_ERROR(SDLInitError() <<
+    GROG_THROW_ERROR(SDLInitError() <<
         SDLFunctionInfo("SDL_Init") << SDLErrorMessageInfo(SDL_GetError()));
   }
 
@@ -54,7 +54,7 @@ void SDLOpenGLContext::InitScreen(
         params.screen_depth,
         flags);
   if (!screen_)
-    THROW_ERROR(SDLInitError() <<
+    GROG_THROW_ERROR(SDLInitError() <<
         SDLFunctionInfo("SDL_SetVideoMode") <<
         SDLErrorMessageInfo(SDL_GetError()));
 }

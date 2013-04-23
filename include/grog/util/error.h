@@ -48,36 +48,36 @@ const typename ErrorInfo::error_info::value_type* GetErrorInfo(const E& e)
 
 }} // namespace grog::util
 
-#define DECL_LOGIC_ERROR(name) \
+#define GROG_DECL_LOGIC_ERROR(name) \
     struct name : virtual ::grog::util::LogicErrorBase {}
-#define DECL_RUNTIME_ERROR(name) \
+#define GROG_DECL_RUNTIME_ERROR(name) \
     struct name : virtual ::grog::util::RuntimeErrorBase {}
-#define DECL_ERROR(name, parent) \
+#define GROG_DECL_ERROR(name, parent) \
     struct name : virtual parent {}
 
-#define DECL_ERROR_INFO(name, type) \
+#define GROG_DECL_ERROR_INFO(name, type) \
    typedef boost::error_info<struct name##Tag, type> name
 
-#define THROW_ERROR(error) BOOST_THROW_EXCEPTION(error)
+#define GROG_THROW_ERROR(error) BOOST_THROW_EXCEPTION(error)
 
 namespace grog { namespace util {
 
-DECL_LOGIC_ERROR(ConnectionError);
-DECL_LOGIC_ERROR(InvalidInputError);
-DECL_LOGIC_ERROR(NotFoundError);
-DECL_LOGIC_ERROR(NullPointerError);
+GROG_DECL_LOGIC_ERROR(ConnectionError);
+GROG_DECL_LOGIC_ERROR(InvalidInputError);
+GROG_DECL_LOGIC_ERROR(NotFoundError);
+GROG_DECL_LOGIC_ERROR(NullPointerError);
 
-DECL_RUNTIME_ERROR(IllegalStateError);
-DECL_RUNTIME_ERROR(IOError);
+GROG_DECL_RUNTIME_ERROR(IllegalStateError);
+GROG_DECL_RUNTIME_ERROR(IOError);
 
-DECL_ERROR_INFO(CodeInfo, int);
-DECL_ERROR_INFO(FileNameInfo, std::wstring);
-DECL_ERROR_INFO(FunctionNameInfo, std::string);
-DECL_ERROR_INFO(IndexInfo, int);
-DECL_ERROR_INFO(LowerBoundInfo, int);
-DECL_ERROR_INFO(MessageInfo, std::string);
-DECL_ERROR_INFO(NestedErrorInfo, boost::exception_ptr);
-DECL_ERROR_INFO(UpperBoundInfo, int);
+GROG_DECL_ERROR_INFO(CodeInfo, int);
+GROG_DECL_ERROR_INFO(FileNameInfo, std::wstring);
+GROG_DECL_ERROR_INFO(FunctionNameInfo, std::string);
+GROG_DECL_ERROR_INFO(IndexInfo, int);
+GROG_DECL_ERROR_INFO(LowerBoundInfo, int);
+GROG_DECL_ERROR_INFO(MessageInfo, std::string);
+GROG_DECL_ERROR_INFO(NestedErrorInfo, boost::exception_ptr);
+GROG_DECL_ERROR_INFO(UpperBoundInfo, int);
 
 }} // namespace grog::util
 

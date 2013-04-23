@@ -226,37 +226,37 @@ public:
    */
   static const PropertyValue kPropValueSDLAppEngine;
 
-  DECL_ERROR(InitError, util::InvalidInputError);
+  GROG_DECL_ERROR(InitError, util::InvalidInputError);
 
   /**
    * An error while parsing a property, including:
    *  - ActualPropertyValueInfo, indicating the value of the property
    *  - ExpectedPropertyTypeInfo, indicating the expected type of the property
    */
-  DECL_ERROR(PropertyParseError, InitError);
+  GROG_DECL_ERROR(PropertyParseError, InitError);
 
   /**
    * An error caused by an invalid configuration, including:
    *  - ActualPropertyValueInfo, indicating the actual value of the property
    *  - ExpectedPropertyValueInfo, indicating the expected value of the property
    */
-  DECL_ERROR(InvalidConfigError, InitError);
+  GROG_DECL_ERROR(InvalidConfigError, InitError);
 
   /**
    * An error caused by an attempt to initialize an already
    * initialized application.
    */
-  DECL_ERROR(AlreadyInitializedError, InitError);
+  GROG_DECL_ERROR(AlreadyInitializedError, InitError);
 
   /**
    * An error caused by an attempt to obtain application object before its
    * initialization.
    */
-  DECL_ERROR(UninitializedError, util::IllegalStateError);
+  GROG_DECL_ERROR(UninitializedError, util::IllegalStateError);
 
-  DECL_ERROR_INFO(ActualPropertyValueInfo, PropertyValue);
-  DECL_ERROR_INFO(ExpectedPropertyValueInfo, std::string);
-  DECL_ERROR_INFO(ExpectedPropertyTypeInfo, std::string);
+  GROG_DECL_ERROR_INFO(ActualPropertyValueInfo, PropertyValue);
+  GROG_DECL_ERROR_INFO(ExpectedPropertyValueInfo, std::string);
+  GROG_DECL_ERROR_INFO(ExpectedPropertyTypeInfo, std::string);
 
   /**
    * Parse the given property value according to type T.
@@ -307,7 +307,7 @@ inline bool Application::ParseProperty(
     return true;
   if (upper_value == "NO" || upper_value == "FALSE" || upper_value == "0")
     return false;
-  THROW_ERROR(PropertyParseError() <<
+  GROG_THROW_ERROR(PropertyParseError() <<
       ActualPropertyValueInfo(value) << ExpectedPropertyTypeInfo("bool"));
 }
 
@@ -317,7 +317,7 @@ inline unsigned Application::ParseProperty(
   try {
     return unsigned(stoi(value));
   } catch (std::exception&) {
-    THROW_ERROR(PropertyParseError() <<
+    GROG_THROW_ERROR(PropertyParseError() <<
         ActualPropertyValueInfo(value) << ExpectedPropertyTypeInfo("uint"));
   }
 }

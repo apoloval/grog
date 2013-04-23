@@ -173,7 +173,7 @@ public:
   virtual Ptr<ApplicationContext> context() = 0;
 };
 
-class Application : public ApplicationContextProvider {
+class Application : public ApplicationContextProvider, util::NonCopyable {
 public:
 
   /**
@@ -242,6 +242,18 @@ public:
    */
   DECL_ERROR(InvalidConfigError, InitError);
 
+  /**
+   * An error caused by an attempt to initialize an already
+   * initialized application.
+   */
+  DECL_ERROR(AlreadyInitializedError, InitError);
+
+  /**
+   * An error caused by an attempt to obtain application object before its
+   * initialization.
+   */
+  DECL_ERROR(UninitializedError, util::IllegalStateError);
+
   DECL_ERROR_INFO(ActualPropertyValueInfo, PropertyValue);
   DECL_ERROR_INFO(ExpectedPropertyValueInfo, std::string);
   DECL_ERROR_INFO(ExpectedPropertyTypeInfo, std::string);
@@ -253,10 +265,16 @@ public:
   static T ParseProperty(const PropertyValue&) throw (PropertyParseError);
 
   /**
-   * Create a new application from given properties. It may throw a
-   * InvalidInputException if given properties are incorrect.
+   * Initialize the application from given properties.
    */
-  Application(const Properties& props = kDefaultProperties);
+  static Application& init(
+      const Properties& props = kDefaultProperties) throw (InitError);
+
+  /**
+   * Obtain the application object, or throw UninitializedError if it wasn't
+   * actually initialized.
+   */
+  static Application& instance() throw (UninitializedError);
 
   virtual ~Application();
 
@@ -270,8 +288,12 @@ public:
 
 private:
 
+  static Ptr<Application> singleton_;
+
   Properties props_;
   Ptr<ApplicationContext> context_;
+
+  Application(const Properties& props) throw (InitError);
 
   static Ptr<ApplicationContext> InitContext(
       const Properties& props) throw (InitError);

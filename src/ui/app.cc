@@ -76,8 +76,17 @@ const PropName Application::kPropValueSDLAppEngine("sdl");
 const Application::Properties Application::kDefaultProperties =
     InitDefaultProperties();
 
-Application::Application(const Properties& props)
-  : props_(props), context_(InitContext(props)) {
+Application& Application::init(const Properties& props) throw (InitError) {
+  if (singleton_)
+    THROW_ERROR(AlreadyInitializedError());
+  singleton_ = new Application(props);
+  return *singleton_;
+}
+
+Application& Application::instance() throw (UninitializedError) {
+  if (!singleton_)
+    THROW_ERROR(UninitializedError());
+  return *singleton_;
 }
 
 Application::~Application() {
@@ -91,6 +100,12 @@ Ptr<Window> Application::NewWindow() {
   Ptr<Window> win = new Window(*this);
   context_->set_window(win);
   return win;
+}
+
+Ptr<Application> Application::singleton_(nullptr);
+
+Application::Application(const Properties& props) throw (InitError)
+  : props_(props), context_(InitContext(props)) {
 }
 
 Ptr<ApplicationContext> Application::InitContext(

@@ -32,8 +32,8 @@ const char* mouse_button_state_name[] = {
   "pressed", "released", "unknown"
 };
 
-void OnMouseButton(Application& app, const MouseButtonEvent& ev) {
-  app.context()->PostRedisplay();
+void OnMouseButton(Application* app, const MouseButtonEvent& ev) {
+  app->context()->PostRedisplay();
   std::cout << boost::format("Mouse button %s was %s on (%d, %d)") %
           mouse_button_name[ev.button] %
           mouse_button_state_name[ev.state] %
@@ -41,9 +41,9 @@ void OnMouseButton(Application& app, const MouseButtonEvent& ev) {
 }
 
 void GrogMain(const GrogMainArgs& args) throw (grog::util::Error) {
-  Application app;
+  Application& app = Application::init();
   app.context()->loop().RegisterMouseButtonEventHandler(
-        std::bind(OnMouseButton, app, _1));
+        std::bind(OnMouseButton, &app, _1));
   auto win = app.NewWindow();
   app.Run();
 }

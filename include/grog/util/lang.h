@@ -35,6 +35,25 @@ public:
   inline Ptr& operator = (T* t) { this->reset(t); return *this; }
 };
 
+/**
+ * An abstract class that may be used to declare other non-copyable classes by
+ * extending it.
+ */
+class NonCopyable {
+protected:
+
+  inline NonCopyable() {}
+
+private:
+
+  /* Note: private copy constructor and assignment operator prevents the
+   * compiler to generate synthesized ones for children classes.
+   */
+  inline NonCopyable(const NonCopyable& obj);
+
+  inline NonCopyable& operator = (const NonCopyable& obj);
+};
+
 }} // namespace grog::util
 
 using grog::util::Ptr;

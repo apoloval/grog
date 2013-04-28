@@ -42,26 +42,26 @@ enum MouseButtonState {
 };
 
 struct MouseMotionEvent {
-  ScreenCoords abs_pos;
-  ScreenCoords rel_pos;
+  Vector2<int> abs_pos;
+  Vector2<int>rel_pos;
 
-  inline MouseMotionEvent(const ScreenCoords& abs, const ScreenCoords& rel)
+  inline MouseMotionEvent(const Vector2<int>& abs, const Vector2<int>& rel)
     : abs_pos(abs), rel_pos(rel) {}
 };
 
 struct MouseButtonEvent {
   MouseButton button;
   MouseButtonState state;
-  ScreenCoords pos;
+  Vector2<int> pos;
 
   inline MouseButtonEvent(const MouseButton& button,
                           const MouseButtonState& state,
-                          const ScreenCoords& pos)
+                          const Vector2<int>& pos)
     : button(button), state(state), pos(pos) {}
 };
 
-typedef std::function<void(const MouseMotionEvent)> MouseMotionEventHandler;
-typedef std::function<void(const MouseButtonEvent)> MouseButtonEventHandler;
+typedef std::function<void(const MouseMotionEvent&)> MouseMotionEventHandler;
+typedef std::function<void(const MouseButtonEvent&)> MouseButtonEventHandler;
 typedef std::function<void(void)> FrameDrawnEventHandler;
 
 /**

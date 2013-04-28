@@ -21,13 +21,14 @@
 
 #include <functional>
 
+#include "grog/ui/color.h"
 #include "grog/ui/draw.h"
 #include "grog/util/lang.h"
 
 namespace grog { namespace ui {
 
 struct OpenGLContextParams {
-  Vector2<unsigned> screen_size;
+  Vector2<int> screen_size;
   unsigned int screen_depth;
   bool double_buffer;
 };
@@ -37,13 +38,29 @@ public:
 
   inline virtual ~OpenGLContext() {}
 
-  virtual Vector2<unsigned> size() const = 0;
+  virtual Vector2<int> size() const = 0;
 
   virtual void SwapBuffers() = 0;
 };
 
+class OpenGLRectangle : public Rectangle {
+public:
+
+  inline OpenGLRectangle(const Color& color) : color_(color) {}
+
+  virtual void Draw(const Rect2<int>& screen_region) const;
+
+private:
+
+  Color color_;
+};
+
 class OpenGLShapeFactory : public ShapeFactory {
 public:
+
+  inline virtual Ptr<Rectangle> CreateRectangle(const Color& color) {
+    return new OpenGLRectangle(color);
+  }
 };
 
 class OpenGLScreen : public Screen {
@@ -51,9 +68,11 @@ public:
 
   OpenGLScreen(const Ptr<OpenGLContext>& ctx);
 
-  virtual Vector2<unsigned> size() const;
+  virtual Vector2<int> size() const;
 
-  virtual void clear();
+  virtual void Clear();
+
+  virtual void Flush();
 
   virtual OpenGLShapeFactory& shape_factory() {
     return *shape_factory_;
@@ -63,6 +82,8 @@ private:
 
   Ptr<OpenGLContext> ctx_;
   Ptr<OpenGLShapeFactory> shape_factory_;
+
+  void Init2DState();
 };
 
 }} // namespace grog::ui

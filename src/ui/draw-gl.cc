@@ -31,18 +31,57 @@
 
 namespace grog { namespace ui {
 
-OpenGLScreen::OpenGLScreen(const Ptr<OpenGLContext>& ctx)
-  : ctx_(ctx), shape_factory_(new OpenGLShapeFactory()) {
+void OpenGLRectangle::Draw(const Rect2<int> &screen_region) const {
+  glColor4f(color_.r, color_.g, color_.b, color_.a);
+  glBegin(GL_QUADS);
+    glVertex2f(screen_region.x,
+               screen_region.y);
+    glVertex2f(screen_region.x + screen_region.w,
+               screen_region.y);
+    glVertex2f(screen_region.x + screen_region.w,
+               screen_region.y + screen_region.h);
+    glVertex2f(screen_region.x,
+               screen_region.y + screen_region.h);
+  glEnd();
 }
 
-Vector2<unsigned> OpenGLScreen::size() const {
+OpenGLScreen::OpenGLScreen(const Ptr<OpenGLContext>& ctx)
+  : ctx_(ctx), shape_factory_(new OpenGLShapeFactory()) {
+  Init2DState();
+}
+
+Vector2<int> OpenGLScreen::size() const {
   return ctx_->size();
 }
 
-void OpenGLScreen::clear() {
+void OpenGLScreen::Clear() {
   glClearColor(0.0f, 0.0f, 0.0, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void OpenGLScreen::Flush() {
+  glFlush();
   ctx_->SwapBuffers();
+}
+
+void OpenGLScreen::Init2DState() {
+  // Set blending for considering alpha channel
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDepthFunc(GL_LEQUAL);
+
+  // Set projection properties
+  auto screen_size = ctx_->size();
+  glViewport(0, 0, screen_size.x, screen_size.y);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0.0,
+         GLdouble(screen_size.x),
+         GLdouble(screen_size.y),
+         0.0,
+         0.0,
+         1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
 }
 
 }} // namespace grog::ui

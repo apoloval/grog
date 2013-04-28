@@ -137,10 +137,8 @@ public:
 class DefaultApplicationContext : public ApplicationContext {
 public:
 
-  inline DefaultApplicationContext(const Ptr<ApplicationLoop>& loop,
-                                   const Ptr<Screen>& screen)
-    : loop_(loop), screen_(screen) {
-  }
+  DefaultApplicationContext(const Ptr<ApplicationLoop>& loop,
+                            const Ptr<Screen>& screen);
 
   inline ApplicationLoop& loop() { return *loop_; }
 
@@ -160,6 +158,7 @@ private:
   Ptr<ApplicationLoop> loop_;
   Ptr<Screen> screen_;
   Ptr<Window> window_;
+  bool post_redisplay_requested_;
 
   inline DefaultApplicationContext(const DefaultApplicationContext&) {}
 
@@ -171,6 +170,34 @@ public:
   inline virtual ~ApplicationContextProvider() {}
 
   virtual Ptr<ApplicationContext> context() = 0;
+};
+
+class AbstractApplicationContextProvider : public ApplicationContextProvider {
+public:
+
+  /**
+   * Initialize with given application context. If null, it will
+   * attempt to obtain the context from the application singleton (which
+   * requires the app to be initialized).
+   */
+  AbstractApplicationContextProvider(
+      const Ptr<ApplicationContext>& context = nullptr);
+
+  inline virtual Ptr<ApplicationContext> context() { return context_; }
+
+  /**
+   * Convenience function to obtain the shape factory from application context.
+   */
+  ShapeFactory& shape_factory() { return context()->screen().shape_factory(); }
+
+  /**
+   * Convenience function to post redisplay using the application context.
+   */
+  inline void PostRedisplay() { context()->PostRedisplay(); }
+
+private:
+
+  Ptr<ApplicationContext> context_;
 };
 
 class Application : public ApplicationContextProvider, util::NonCopyable {

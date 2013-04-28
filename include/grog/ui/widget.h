@@ -21,28 +21,72 @@
 
 #include "grog/ui/app.h"
 #include "grog/ui/draw.h"
+#include "grog/ui/mouse.h"
 
 namespace grog { namespace ui {
 
-class Widget : public Drawable, public ApplicationContextProvider {
+class Widget : public Drawable,
+               public AbstractApplicationContextProvider,
+               public virtual MouseResponder {
 public:
 
-  inline Widget(const Ptr<ApplicationContext>& app_ctx) : app_ctx_(app_ctx) {}
+  Widget(const Ptr<ApplicationContext>& app_ctx = nullptr);
 
   virtual Ptr<ApplicationContext> context() { return app_ctx_; }
+
+  inline bool enabled() const { return enabled_; }
+
+  inline void set_enabled(bool value) { enabled_ = value; }
+
+  inline bool locked() const { return locked_; }
+
+  inline void set_locked(bool value) { locked_ = value; }
+
+  inline bool visible() const { return visible_; }
+
+  inline void set_visible(bool value) { visible_ = value; }
 
 private:
 
   Ptr<ApplicationContext> app_ctx_;
+  bool enabled_;
+  bool locked_;
+  bool visible_;
 };
 
-class Window : public Widget {
+/**
+ * A composite widget which wraps another widget.
+ */
+class WrapperWidget : public Widget, public DelegatedMouseResponder {
 public:
 
-  inline Window(ApplicationContextProvider& app_ctx_prov) :
-    Widget(app_ctx_prov.context()) {}
+  inline WrapperWidget(
+      const Ptr<ApplicationContext>& app_ctx) : Widget(app_ctx) {}
 
-  virtual void draw(const ScreenRegion& screen_region) const;
+  virtual void Draw(const Rect2<int>& screen_region) const;
+
+  /**
+   * Set the wrapped child.
+   */
+  template <typename L>
+  inline L& set_child(const Ptr<L>& child) {
+    child_ = child;
+    set_delegate(child_);
+    return *child;
+  }
+
+  inline const Ptr<Widget> child() { return child_; }
+
+private:
+
+  Ptr<Widget> child_;
+};
+
+class Window : public WrapperWidget {
+public:
+
+  inline Window(ApplicationContextProvider& ctx_prov)
+    : WrapperWidget(ctx_prov.context()) {}
 };
 
 }} // namespace grog::ui

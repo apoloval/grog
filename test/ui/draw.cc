@@ -18,8 +18,10 @@
 
 #include <iostream>
 
-#include <grog/ui/app.h>
 #include <boost/format.hpp>
+#include <grog/ui/app.h>
+#include <grog/ui/layout.h>
+#include <grog/ui/widget.h>
 
 using namespace grog::ui;
 using namespace std::placeholders;
@@ -30,6 +32,25 @@ const char* mouse_button_name[] = {
 
 const char* mouse_button_state_name[] = {
   "pressed", "released", "unknown"
+};
+
+class FakeWidget : public Widget, public MouseUnresponder {
+public:
+
+  FakeWidget(const Color& col) : rect_(shape_factory().CreateRectangle(col)){
+  }
+
+  virtual void Draw(const Rect2<int>& screen_region) const {
+    rect_->Draw(screen_region);
+  }
+
+  virtual bool Respond(const MouseButtonEvent& ev) { return false; }
+
+  virtual bool Respond(const MouseMotionEvent& ev) { return false; }
+
+private:
+
+  Ptr<Rectangle> rect_;
 };
 
 void OnMouseButton(Application* app, const MouseButtonEvent& ev) {
@@ -45,5 +66,15 @@ void GrogMain(const GrogMainArgs& args) throw (grog::util::Error) {
   app.context()->loop().RegisterMouseButtonEventHandler(
         std::bind(OnMouseButton, &app, _1));
   auto win = app.NewWindow();
+  Ptr<Widget> fake1 = new FakeWidget(Color::kLightRed);
+  Ptr<Widget> fake2 = new FakeWidget(Color::kLightGreen);
+  Ptr<Widget> fake3 = new FakeWidget(Color::kLightBlue);
+
+  fake2->set_locked(true); // fake2 cannot be moved
+
+  win->set_child<FixedLayout>(new FixedLayout())
+      .AddWidget(fake1, Rect2<int>(100, 100, 50, 50))
+      .AddWidget(fake2, Rect2<int>(200, 200, 50, 50))
+      .AddWidget(fake3, Rect2<int>(300, 300, 50, 50));
   app.Run();
 }

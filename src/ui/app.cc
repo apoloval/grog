@@ -52,17 +52,47 @@ Application::Properties InitDefaultProperties() {
 
 } // anonymous namespace
 
-void DefaultApplicationContext::PostRedisplay()
-{
-  loop().AddWorkUnit([this]() {
-    auto& scr = screen();
-    scr.clear();
+DefaultApplicationContext::DefaultApplicationContext(
+    const Ptr<ApplicationLoop>& loop, const Ptr<Screen>& screen)
+  : loop_(loop), screen_(screen), post_redisplay_requested_(false) {
+  loop_->RegisterMouseMotionEventHandler([this](const MouseMotionEvent& ev) {
     auto win = window();
     if (win)
-     win->draw(ScreenRegion(Vector2<signed>(0, 0), scr.size()));
-    // Remove work unit, will be inserted when post redisplay is requested
-    return false;
+      win->Respond(ev);
   });
+  loop_->RegisterMouseButtonEventHandler([this](const MouseButtonEvent& ev) {
+    auto win = window();
+    if (win)
+      win->Respond(ev);
+  });
+}
+
+
+void DefaultApplicationContext::PostRedisplay()
+{
+  if (!post_redisplay_requested_) {
+    post_redisplay_requested_ = true;
+    loop().AddWorkUnit([this]() {
+      auto& scr = screen();
+      scr.Clear();
+      auto win = window();
+      if (win)
+        win->Draw(Rect2<int>(Vector2<int>(0, 0), scr.size()));
+      scr.Flush();
+
+      post_redisplay_requested_ = false;
+
+      // Remove work unit, will be inserted when post redisplay is requested
+      return false;
+    });
+  }
+}
+
+AbstractApplicationContextProvider::AbstractApplicationContextProvider(
+    const Ptr<ApplicationContext>& context)
+  : context_(context){
+  if (!context_)
+    context_ = Application::instance().context();
 }
 
 const PropName Application::kPropNameScreenWidth("screen-width");

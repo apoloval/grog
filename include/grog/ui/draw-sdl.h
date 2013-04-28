@@ -52,7 +52,7 @@ public:
 
   SDLOpenGLContext(const OpenGLContextParams& params) throw (SDLInitError);
 
-  virtual Vector2<unsigned> size() const;
+  virtual Vector2<int> size() const;
 
   virtual ~SDLOpenGLContext();
 
@@ -61,7 +61,7 @@ public:
 private:
 
   SDL_Surface* screen_;
-  Vector2<unsigned> size_;
+  Vector2<int> size_;
 
   void InitScreen(const OpenGLContextParams& params) throw (SDLInitError);
 };

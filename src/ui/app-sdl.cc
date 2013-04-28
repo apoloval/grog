@@ -41,8 +41,8 @@ enum SDLCustomEvent {
 
 MouseMotionEvent ToEvent(const SDL_MouseMotionEvent& ev) {
   return MouseMotionEvent(
-        ScreenCoords( ev.x, ev.y),
-        ScreenCoords( ev.xrel, ev.yrel));
+        Vector2<int>(ev.x, ev.y),
+        Vector2<int>(ev.xrel, ev.yrel));
 }
 
 MouseButton ToMouseButton(Uint8 btn) {
@@ -68,7 +68,7 @@ MouseButtonEvent ToEvent(const SDL_MouseButtonEvent& ev) {
   return MouseButtonEvent(
         ToMouseButton(ev.button),
         ToMouseButtonState(ev.state),
-        ScreenCoords(ev.x, ev.y));
+        Vector2<int>(ev.x, ev.y));
 }
 
 } // anonymous namespace
@@ -137,7 +137,7 @@ void SDLApplicationLoop::ProcessWorkUnit() {
 Ptr<Screen> SDLApplicationContextFactory::CreateScreen(
     const Application::Properties& props) {
   OpenGLContextParams params = {
-    Vector2<unsigned>(
+    Vector2<int>(
       Application::ParseProperty<unsigned>(
           props.at(Application::kPropNameScreenWidth)),
       Application::ParseProperty<unsigned>(

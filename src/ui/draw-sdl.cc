@@ -26,7 +26,7 @@ SDLOpenGLContext::SDLOpenGLContext(
   InitScreen(params);
 }
 
-Vector2<unsigned> SDLOpenGLContext::size() const {
+Vector2<int> SDLOpenGLContext::size() const {
   return size_;
 }
 

@@ -30,9 +30,15 @@ struct Vector2 {
   T y;
 
   inline Vector2(const T& x, const T& y) : x(x), y(y) {}
-};
 
-typedef Vector2<signed> ScreenCoords;
+  inline Vector2 operator + (const Vector2& v) const {
+    return Vector2(x + v.x, y + v.y);
+  }
+
+  inline Vector2 operator - (const Vector2& v) const {
+    return Vector2(x - v.x, y - v.y);
+  }
+};
 
 template <typename PT, typename ST = PT>
 struct Rect2 {
@@ -47,12 +53,21 @@ struct Rect2 {
   inline Rect2(const Vector2<PT>& pos, const Vector2<ST>& size)
     : x(pos.x), y(pos.y), w(size.x), h(size.y) {}
 
-  inline Rect2 Subrectangle(const Rect2& rect) const {
+  inline Rect2 subrectangle(const Rect2& rect) const {
     return Rect2(x + rect.x, y + rect.y, rect.w, rect.h);
   }
-};
 
-typedef Rect2<signed, unsigned> ScreenRegion;
+  inline Vector2<PT> position() const { return Vector2<PT>(x, y); }
+
+  inline void set_position(const Vector2<PT>& pos) {
+    x = pos.x;
+    y = pos.y;
+  }
+
+  inline bool Wrap(const Vector2<PT>& p) const {
+    return x <= p.x && p.x <= x + w && y <= p.y && p.y <= y + h;
+  }
+};
 
 }} // namespace grog::ui
 

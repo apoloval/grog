@@ -18,17 +18,20 @@ cmake_minimum_required(VERSION 2.8)
 project(Grog)
 
 find_package(SDL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system thread date_time chrono)
+find_package(Boost REQUIRED COMPONENTS system thread date_time chrono regex)
 find_package(OpenGL REQUIRED)
 
 set(libgrog_HEADERS
   include/grog/ui/app.h
   include/grog/ui/app-sdl.h
+  include/grog/ui/color.h
   include/grog/ui/draw.h
   include/grog/ui/draw-gl.h
   include/grog/ui/draw-sdl.h
   include/grog/ui/euclidean.h
   include/grog/ui/event.h
+  include/grog/ui/layout.h
+  include/grog/ui/mouse.h
   include/grog/ui/widget.h
   include/grog/util/error.h
   include/grog/util/lang.h
@@ -38,11 +41,14 @@ set(libgrog_HEADERS
 set(libgrog_SOURCES
   src/ui/app.cc
   src/ui/app-sdl.cc
+  src/ui/color.cc
   src/ui/draw.cc
   src/ui/draw-gl.cc
   src/ui/draw-sdl.cc
   src/ui/event.cc
+  src/ui/layout.cc
   src/ui/main.cc
+  src/ui/mouse.cc
   src/ui/widget.cc
 )
 

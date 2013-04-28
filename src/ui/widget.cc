@@ -22,8 +22,15 @@
 
 namespace grog { namespace ui {
 
-void Window::draw(const ScreenRegion& screen_region) const {
-  std::cerr << "Main window requested to draw" << std::endl;
+Widget::Widget(const Ptr<ApplicationContext>& app_ctx)
+  : app_ctx_(app_ctx), enabled_(true), locked_(false), visible_(true) {
+  if (!app_ctx_)
+    app_ctx_ = Application::instance().context();
+}
+
+void WrapperWidget::Draw(const Rect2<int>& screen_region) const {
+  if (child_)
+    child_->Draw(screen_region);
 }
 
 }} // namespace grog::ui

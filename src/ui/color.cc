@@ -16,47 +16,15 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GROG_UI_DRAW_H
-#define GROG_UI_DRAW_H
-
 #include "grog/ui/color.h"
-#include "grog/ui/euclidean.h"
-#include "grog/util/lang.h"
 
 namespace grog { namespace ui {
 
-class Drawable {
-public:
-
-  inline virtual ~Drawable() {}
-
-  virtual void Draw(const Rect2<int>& screen_region) const = 0;
-};
-
-class Rectangle : public Drawable {};
-
-class ShapeFactory : util::NonCopyable {
-public:
-
-  inline virtual ~ShapeFactory() {}
-
-  virtual Ptr<Rectangle> CreateRectangle(const Color& color) = 0;
-};
-
-class Screen {
-public:
-
-  inline virtual ~Screen() {}
-
-  virtual Vector2<int> size() const = 0;
-
-  virtual void Clear() = 0;
-
-  virtual void Flush() = 0;
-
-  virtual ShapeFactory& shape_factory() = 0;
-};
+Color Color::kBlue= { 0.0f, 0.0f, 1.0f, 1.0f };
+Color Color::kGreen = { 0.0f, 1.0f, 0.0f, 1.0f };
+Color Color::kLightBlue= { 0.5f, 0.5f, 1.0f, 1.0f };
+Color Color::kLightGreen = { 0.5f, 1.0f, 0.5f, 1.0f };
+Color Color::kLightRed = { 1.0f, 0.5f, 0.5f, 1.0f };
+Color Color::kRed = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 }} // namespace grog::ui
-
-#endif // GROG_DRAW_H

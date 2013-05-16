@@ -73,6 +73,12 @@ MouseButtonEvent ToEvent(const SDL_MouseButtonEvent& ev) {
 
 } // anonymous namespace
 
+SDLApplicationLoop::~SDLApplicationLoop()
+{
+  if (consolidation_pool_)
+    delete consolidation_pool_;
+}
+
 Ptr<ApplicationLoop> SDLApplicationLoop::instance() {
   static Ptr<ApplicationLoop> instance(new SDLApplicationLoop());
   return instance;
@@ -93,6 +99,7 @@ void SDLApplicationLoop::Run() {
     if (SDL_WaitEvent(&event)) {
       switch (event.type) {
         case SDL_MOUSEMOTION:
+          ConsolidateMouseMotion(event.motion);
           HandleMouseMotionEvent(ToEvent(event.motion));
           break;
         case SDL_MOUSEBUTTONUP:
@@ -114,9 +121,27 @@ void SDLApplicationLoop::Stop() {
   running_ = false;
 }
 
-SDLApplicationLoop::SDLApplicationLoop() : running_(false) {
+SDLApplicationLoop::SDLApplicationLoop()
+  : running_(false), consolidation_pool_len_(1024) {
   if (!SDL_WasInit(SDL_INIT_VIDEO)) {
     SDL_Init(SDL_INIT_VIDEO);
+  }
+  consolidation_pool_ = new SDL_Event[1024];
+}
+
+void SDLApplicationLoop::ConsolidateMouseMotion(SDL_MouseMotionEvent &ev) {
+  auto nevents = SDL_PeepEvents(
+        consolidation_pool_,
+        consolidation_pool_len_,
+        SDL_GETEVENT,
+        SDL_EVENTMASK(SDL_MOUSEMOTION));
+  for (unsigned int i = 0; i < nevents; i++) {
+    SDL_MouseMotionEvent& con_ev = consolidation_pool_[i].motion;
+    ev.state = con_ev.state;
+    ev.x = con_ev.x;
+    ev.y = con_ev.y;
+    ev.xrel += con_ev.xrel;
+    ev.yrel += con_ev.yrel;
   }
 }
 

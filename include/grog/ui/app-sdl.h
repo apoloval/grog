@@ -23,7 +23,11 @@
 
 #include "grog/ui/app.h"
 
-extern "C" { struct SDL_UserEvent; }
+extern "C" {
+  union SDL_Event;
+  struct SDL_MouseMotionEvent;
+  struct SDL_UserEvent;
+}
 
 namespace grog { namespace ui {
 
@@ -31,6 +35,8 @@ class SDLApplicationLoop : public AbstractApplicationLoop {
 public:
 
   static Ptr<ApplicationLoop> instance();
+
+  ~SDLApplicationLoop();
 
   virtual void AddWorkUnit(const WorkUnit& wu);
 
@@ -42,8 +48,12 @@ private:
 
   bool running_;
   std::queue<WorkUnit> work_units_;
+  SDL_Event* consolidation_pool_;
+  unsigned int consolidation_pool_len_;
 
   SDLApplicationLoop();
+
+  void ConsolidateMouseMotion(SDL_MouseMotionEvent& ev);
 
   void OnUserEvent(SDL_UserEvent& ev);
 
